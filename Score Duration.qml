@@ -7,14 +7,14 @@ import QtQuick.Controls.Styles 1.3*/
 
 MuseScore {
       menuPath: "Plugins.Score Duration"
-      description: qsTr("Outputs a score's duration.")
+      description: qsTr("Outputs a score's total runtime in hours, minutes, and seconds.")
       version: "1.0"
       requiresScore: true
       
       onRun: {
       var score = curScore;
       var dur = score.duration;
-      //console.log("all set!")
+      //console.log("configured! now calculating...")
       
       //time calculation for scores < 3600s
       var dursec = dur % 60
