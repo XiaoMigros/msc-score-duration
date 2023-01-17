@@ -26,7 +26,7 @@ MuseScore {
             var durh = (durmin-durmin2)/60
             //sends results to user window and activates it
             console.log ("Calculated score duration: " + durh + " h, " + durmin2 + " min, " + dursec + " s. (" + dur + " s).")
-            durationDialog.text = ("Your score '" + score.title + "' is " + durh + " hours, " + durmin2 + " minutes, and " + dursec + " seconds long. (" + dur + " seconds).")
+            durationDialog.text = ("Your score '" + score.title + "' is " + durh + " hours, " + durmin2 + " minutes, and " + dursec + " seconds long (" + dur + " seconds).")
             durationDialog.visible = true;
             return;
             }
@@ -39,7 +39,7 @@ MuseScore {
             }
       //formatting for 60s =< scores < 3600s
       console.log ("Calculated score duration: " + durmin + " min, " + dursec + " s. (" + dur + " s).")
-      durationDialog.text = ("Your score '" + score.title + "' is " + durmin + " minutes and " + dursec + " seconds long. (" + dur + " seconds).")
+      durationDialog.text = ("Your score '" + score.title + "' is " + durmin + " minutes and " + dursec + " seconds long (" + dur + " seconds).")
       durationDialog.visible = true;
       }
       
