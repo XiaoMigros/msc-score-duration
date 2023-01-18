@@ -10,7 +10,7 @@ import Qt.labs.settings 1.0
 MuseScore {
       menuPath: "Plugins.Score Duration"
       description: qsTr("Outputs a score's duration in hours, minutes, and seconds.")
-      version: "1.1.0"
+      version: "1.1.1"
       requiresScore: true
 
       Text {
