@@ -5,6 +5,7 @@ import QtQuick.Layouts 1.3
 import QtQuick.Controls 1.5
 import QtQuick.Controls.Styles 1.3
 import QtQuick.Window 2.3
+import Qt.labs.settings 1.0
 
 MuseScore {
       menuPath: "Plugins.Score Duration"
@@ -75,6 +76,16 @@ MuseScore {
       savetext2.text = (durmin + ":" + dursec)
       savetext3.text = (dur + " s")
       savetext4.text = dur
+      
+      //activate advanced menu if it was left on last run
+      if (saveprop.checked == true) {
+            seconds.visible = true
+            units.visible = true
+            tagnamelabel.visible = true
+            tagname.visible = true
+            }
+            
+      //show window
       durationDialog.visible = true;
 
       } //onRun
@@ -145,7 +156,7 @@ Dialog {
                   onClicked: {
                   if (checked == true) {
                         seconds.visible = true
-      	           units.visible = true
+      	                 units.visible = true
                         tagnamelabel.visible = true
                         tagname.visible = true
             		} else {
@@ -236,5 +247,14 @@ Dialog {
             }//ColumnLayout
             
 	} //Dialog
+
+      Settings {
+        id: settings
+        category: "ScoreDurationPlugin"
+        property alias saveprop:    saveprop.checked
+        property alias units:       units.checked
+        property alias seconds:     seconds.checked
+        property alias tagname:     tagname.text
+        } //settings
 
 } //Musescore
