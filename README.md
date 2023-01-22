@@ -5,4 +5,7 @@ Features:
  - Output a score's run time in conventional time units
  - Save the values to Score Properties, with a variety of formats to choose from
 
-For help installing this plugin, visit https://musescore.org/en/handbook/3/plugins#installation
+# Installation
+Unzip the latest release and move 'Score Duration.qml' to MuseScore's plugins folder.
+
+For more help installing this plugin, visit https://musescore.org/en/handbook/3/plugins#installation
