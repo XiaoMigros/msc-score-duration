@@ -1,4 +1,4 @@
-# Score Duration for MuseScore 3
+# [Score Duration for MuseScore 3](https://musescore.org/en/project/score-duration)
 A simple plugin for MuseScore 3.x that tells you how long your score is.
 
 ## Features:
@@ -8,4 +8,4 @@ A simple plugin for MuseScore 3.x that tells you how long your score is.
 ## Installation
 Unzip the latest release and move 'Score Duration.qml' to MuseScore's plugins folder.
 
-For more help installing this plugin, visit https://musescore.org/en/handbook/3/plugins#installation
+For more help installing this plugin, visit [this page](https://musescore.org/en/handbook/3/plugins#installation).
