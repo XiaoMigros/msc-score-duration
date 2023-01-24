@@ -22,6 +22,15 @@ MuseScore {
       description: qsTr("Outputs a score's duration in hours, minutes, and seconds.")
       version: "1.1.2"
       requiresScore: true
+      
+       Component.onCompleted : {
+        if (mscoreMajorVersion >= 4) {
+           title = qsTr("Score Duration") ;
+           // thumbnailName = ".png";
+           // categoryCode = "some_category";
+           }
+       }
+
 
       Text {
       id: savetext //value that gets written to tag
