@@ -1,5 +1,5 @@
-# [Score Duration for MuseScore 3](https://musescore.org/en/project/score-duration)
-A simple plugin for MuseScore 3.x that tells you how long your score is.
+# [Score Duration for MuseScore 3 & 4](https://musescore.org/en/project/score-duration)
+A simple MuseScore plugin that tells you how long your score is.
 
 ## Features:
  - Output a score's run time in conventional time units
