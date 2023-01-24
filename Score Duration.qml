@@ -8,6 +8,7 @@ import QtQuick.Window 2.3
 import Qt.labs.settings 1.0
 
 //Changelog:
+//1.1.3: MuseScore 4 Compatibility
 //1.1.2: Fixed a bug which meant settings only saved on 60s =< scores < 3600s
 //       Fixed a bug where a score of eg. 61 seconds could be saved as 1:1 (preferred: 1:01)
 //       Text in the pop-up window doesn't automatically add plurals to all units.
@@ -26,9 +27,9 @@ MuseScore {
        Component.onCompleted : {
         if (mscoreMajorVersion >= 4) {
            title = qsTr("Score Duration") ;
-           // thumbnailName = ".png";
-           // categoryCode = "some_category";
-           }
+           thumbnailName = "logo.png";
+           categoryCode = "analysis";
+           } //if
        }
 
 
