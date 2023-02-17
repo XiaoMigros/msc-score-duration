@@ -7,6 +7,5 @@ A simple MuseScore plugin that tells you how long your score is.
 
 ## Installation
 Unzip the latest release and move 'Score Duration.qml' to MuseScore's plugins folder.
-Currently MuseScore 4 does not detect the plugin.
 
 For more help installing this plugin, visit [this page](https://musescore.org/en/handbook/3/plugins#installation).
