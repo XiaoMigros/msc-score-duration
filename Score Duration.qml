@@ -8,7 +8,7 @@ import Qt.labs.settings 1.0
 import MuseScore 3.0
 
 // Changelog:
-// 1.1.3: MuseScore 4 compatibility, tag preview, massive code simplifications
+// 1.2.0: MuseScore 4 compatibility, tag preview, massive code simplifications
 // 1.1.2: Fixed a bug which meant settings only saved on 60s =< scores < 3600s
 //        Fixed a bug where a score of eg. 61 seconds could be saved as 1:1 (preferred: 1:01)
 //        Text in the pop-up window doesn't automatically add plurals to all units.
@@ -21,7 +21,7 @@ import MuseScore 3.0
 MuseScore {
     menuPath: qsTr("Plugins.Score Duration")
     description: qsTr("Outputs a score's duration in hours, minutes, and seconds.")
-    version: "1.1.3"
+    version: "1.2.0"
     requiresScore: true
     id: sd
 	
