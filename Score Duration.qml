@@ -1,351 +1,255 @@
 import QtQuick 2.0
-import MuseScore 3.0
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 1.5
-import QtQuick.Controls.Styles 1.3
-import QtQuick.Window 2.3
 import Qt.labs.settings 1.0
+import MuseScore 3.0
 
-//Changelog:
-//1.1.3: MuseScore 4 Compatibility
-//1.1.2: Fixed a bug which meant settings only saved on 60s =< scores < 3600s
-//       Fixed a bug where a score of eg. 61 seconds could be saved as 1:1 (preferred: 1:01)
-//       Text in the pop-up window doesn't automatically add plurals to all units.
-//       Text in the pop-up window won't display empty quotes if no score title was found.
-//       Various code simplifications
-//1.1.1: The plugin now saves selected options to settings.
-//1.1.0: The plugin can now write the duration to Score Properties, in a variety of formats.
-//1.0.1: Initial functional release
+// Changelog:
+// 1.1.3: MuseScore 4 compatibility, tag preview, massive code simplifications
+// 1.1.2: Fixed a bug which meant settings only saved on 60s =< scores < 3600s
+//        Fixed a bug where a score of eg. 61 seconds could be saved as 1:1 (preferred: 1:01)
+//        Text in the pop-up window doesn't automatically add plurals to all units.
+//        Text in the pop-up window won't display empty quotes if no score title was found.
+//        Various code simplifications
+// 1.1.1: The plugin now saves selected options to settings.
+// 1.1.0: The plugin can now write the duration to Score Properties, in a variety of formats.
+// 1.0.1: Initial functional release
 
 MuseScore {
-      menuPath: "Plugins.Score Duration"
-      description: qsTr("Outputs a score's duration in hours, minutes, and seconds.")
-      version: "1.1.2"
-      requiresScore: true
-      
-       Component.onCompleted : {
+    menuPath: qsTr("Plugins.Score Duration")
+    description: qsTr("Outputs a score's duration in hours, minutes, and seconds.")
+    version: "1.1.3"
+    requiresScore: true
+    id: sd
+	
+    Component.onCompleted : {
         if (mscoreMajorVersion >= 4) {
-           title = qsTr("Score Duration") ;
-           thumbnailName = "logo.png";
-           categoryCode = "analysis";
-           } //if
-       }
-
-
-      Text {
-      id: savetext //value that gets written to tag
-      }
+            sd.title = qsTr("Score Duration") ;
+            sd.thumbnailName = "logo.png";
+            sd.categoryCode = "analysis";
+        } //if
+    } //oncompleted
+    
+	//different time formats
+    property var savetext1;
+    property var savetext2;
+    property var savetext3;
+    property var savetext4;
+	
+	property var savetext: units.checked ? (seconds.checked ? savetext3 : savetext1) : (seconds.checked ? savetext4 : savetext2)
       
-      //different time formats
-      Text {
-      id: savetext1 //yes units no seconds
-	}
-      
-      Text {
-      id: savetext2 //no units no seconds (YouTube thumbnail format)
-      }
-      
-      Text {
-      id: savetext3 // yes units yes seconds
-      }
-      
-      Text {
-      id: savetext4 // no units yes seconds
-      }
-      
-onRun: {
-      var score = curScore;
-      var dur = score.duration;
-      
-      //activate advanced menu if it was left on last run
-      if (saveprop.checked == true) {
-            seconds.visible = true;
-            units.visible = true;
-            tagnamelabel.visible = true;
-            tagname.visible = true;
-            } //if
-      
-      //time calculation
-      var dursec = dur % 60;      
-      var durmin = (dur - dursec) / 60;
-      var durmin2 =  durmin % 60;
-      var durh = (durmin-durmin2) / 60;
-      
-      //text format for window
-      var titleformat = ("Your score '" + score.title + "' is ");
-      var hourtext = ""
-      var hourtype = ""
-      var hourpunct = ""
-      var mintext = ""
-      var mintype = ""
-      var minpunct = ""
-      var sectext = ""
-      var sectype = ""
-      var abssec = (" long (" + dur + " seconds).");
-      var puncttype = 0;
-      
-      if (score.title == "") {
-            titleformat = "Your score is ";
-            }   
-            
-      if (durh != 0) {
-            puncttype = puncttype + 1;
-            hourtext = durh;
-            if (durh == 1) {
-                  hourtype = " hour";
-                  } else {
-                  hourtype = " hours";         
-                  }
-            }
-                  
-      if (durmin2 != 0) {
-      //we want to display durmin2 rather than durmin; durmin can go over 60 but otherwise the two vars are the same.
-            puncttype = puncttype + 2;                  
-            mintext = durmin2;
-            if (durmin2 == 1) {
-                  mintype = " minute";
-                  } else {
-                  mintype = " minutes";
-                  }
-            }           
-      
-      if (dursec != 0) {
-            puncttype = puncttype + 4;
-            sectext = dursec;
-            if (dursec == 1) {
-                  sectype = " second"
-                  } else {
-                  sectype = " seconds"
-                  }
-            }      
-      
-      if (puncttype == 3) {
-            hourpunct = " and "
-            }
-       
-      if (puncttype == 5) {
-            hourpunct = " and "
-            }
-           
-      if (puncttype == 6) {
-            minpunct = " and "
-            }
-       
-      if (puncttype == 7) {
-            hourpunct = ", "
-            minpunct = ", and "
-            }
-                  
-      if (durmin == 0) {
-            abssec = " long."
-            }
-      
-      if (dur == 0) {
-            sectext = dur;
-            sectype = " seconds"
-            }
-                  
-      ddtext.text = (titleformat + hourtext + hourtype + hourpunct + mintext + mintype + minpunct + sectext + sectype + abssec);
-      console.log(ddtext.text);                                                                      
-      
-      //save format for scores >= 3600s
-      if (durmin >= 60) {
-            //sends results to user window and activates it            
-            savetext1.text = (durh + " h, " + durmin2 + " min, " + dursec + " s");
-            if (durmin2 >= 10) {
-                  if (dursec >= 10) {
-                        savetext2.text = (durh + ":" + durmin2 + ":" + dursec);
-                        } else {
-                        savetext2.text = (durh + ":" + durmin2 + ":0" + dursec);
-                        } //innerelse
-             } else {
-                   if (dursec >= 10) {
-                        savetext2.text = (durh + ":0" + durmin2 + ":" + dursec);
-                        } else {
-                        savetext2.text = (durh + ":0" + durmin2 + ":0" + dursec);
-                        } //innerelse
-             } //outerelse                             
-            savetext3.text = (dur + " s");
-            savetext4.text = dur;
-            durationDialog.visible = true;
-            return;
-            }
-
-      //save format for scores > 60s 
-      if (durmin == 0) {            
-            savetext1.text = (dursec + " s");
-            //to avoid an 8 second score to result in 0:8 (preferred: 0:08)
-            if (dursec >= 10) {                  
-                  savetext2.text = ("0:" + dursec);
-                  } else {
-                  savetext2.text = ("0:0" + dursec);
-                  }
-            savetext3.text = (dur + " s");
-            savetext4.text = dur;
-            durationDialog.visible = true;
-            return;
-            }
-
-      //save format for 60s =< scores < 3600s      
-      savetext1.text = (durmin + " min, " + dursec + " s");
-      if (dursec >= 10) {             
-                  savetext2.text = (durmin + ":" + dursec);
-            } else {
-            savetext2.text = (durmin + ":0" + dursec);
-            }
-      savetext3.text = (dur + " s");
-      savetext4.text = dur;
-      durationDialog.visible = true;
-
-} //onRun
-
-function saveToTag() {
-//executed on button click or return key from text field
-      if (saveprop.checked == true) {
-      //checks for save to score properties
-                  
-            //tag content formatting
-            if (units.checked == true && seconds.checked == false) {
-                  savetext.text = savetext1.text
-                  }
-            if (units.checked == false && seconds.checked == false) {
-                  savetext.text = savetext2.text
-                  }
-            if (units.checked == true && seconds.checked == true) {
-                  savetext.text = savetext3.text
-                  }
-            if (units.checked == false && seconds.checked == true) {
-                  savetext.text = savetext4.text
-                  }      
-                              
-            var actTagName = "duration"
-            //checks for alternate tag name
-            if (tagname.text != "") {
-                  actTagName = tagname.text                      
-                  }                       
-            console.log("Writing '" + savetext.text  + "' to tag '" + actTagName + "'.");
-            curScore.setMetaTag(actTagName, savetext.text);   
-                                 
-      } else {
-      //wanted if we dont save to score properties
-      console.log("Not saving to Score Properties.")
-      }
-} //function      
-      
-Dialog {
-//window shown to end user
-	id: durationDialog
-	visible: false; //is changed once calculation has finished
-	title: qsTr("Score Duration");
-
-	standardButtons: StandardButton.Ok
-	     onAccepted: {
-                  saveToTag()
-                  console.log("Closing...")            
-                  durationDialog.close();
-	           } //onAccepted
-
-       /*Button {
-            id: ok
-            text: OK
-            x: parent.width - 10
-            y: - 100
-            }*/ //Alternate button program for potential switch to ApplicationWindow
-
-	Text {
-		id: ddtext
-	     } //Text
-
-
-      ColumnLayout {
-            id: mainLayout
-            anchors.margins: 10
-            anchors.top: ddtext.bottom
-            anchors.topMargin: 10
-            //columns: 3 -remnant from gridlayout
-            
-            RowLayout {
-                  
-                  CheckBox {
-                        id: saveprop
-                        text: "Save to Score Properties"
-                        
-                        onClicked: {
-                              if (checked) {
-                                    seconds.visible = true
-                                    units.visible = true
-                                    tagnamelabel.visible = true
-                                    tagname.visible = true
-            		          } else {
-                                    units.visible = false
-                                    seconds.visible = false
-                                    tagnamelabel.visible = false
-                                    tagname. visible = false
-                              }
-
-                        } //on clicked
-                  } //CheckBox
-                  
-            } //RowLayout
-               
-            RowLayout {               
-                  spacing: 20;
-                  
-                  CheckBox {
-                        id: units;
-                        visible: false;
-                        checked: true;
-                        text: "Save Units"
-                        //if (! checked) {}
-                        } //CheckBox
-                        
-                  CheckBox {
-                        id: seconds;
-                        visible: false;
-                        checked: false;
-                        text: "Seconds only"	     
-                        //if (! checked) {}
-                        } //CheckBox
-                        
-                  } //RowLayout
-                  
-            RowLayout {
-                        
-                  Label {
-                        id: tagnamelabel;
-                        visible: false;
-                        text: "TagName: "
-                        //Layout.alignment: Qt.AlignRight
-                        //anchors.right: units.right neither of these do anything
-                        } //Label
-
-                  TextField {
-                        id: tagname
-                        visible: false
-                        placeholderText: "duration"
-                        
-                        Keys.onReturnPressed: {
-                              saveToTag()
-                              console.log("Closing...")
-                              durationDialog.close();                                                            
-                              } //onReturnPressed
-                              
-                        } //Textfield 
-                        
-                  } //RowLayout
-                  
-            }//ColumnLayout
-            
+	onRun: {
+		console.log("Running Plugin: Score Duration")
+		var score	= curScore;
+		var dur		= score.duration;
+		
+		//time calculation
+		var dursec	= dur % 60;
+		var durmin	= (dur - dursec) / 60;
+		var durmin2	=  durmin % 60;
+		var durh	= (durmin-durmin2) / 60;
+		
+		//text format for window
+		var titleformat	= (score.title == "") ? ("Your score is ") : ("Your score '" + score.title + "' is ");
+		var hourtext	= ""
+		var hourtype	= ""
+		var hourpunct	= ""
+		var mintext		= ""
+		var mintype		= ""
+		var minpunct	= ""
+		var sectext		= ""
+		var sectype		= ""
+		var abssec		= (durmin == 0) ? (" long.") : (" long (" + dur + " seconds).");
+		var puncttype	= 0;
+		
+		if (durh > 0) {
+			puncttype += 1;
+			hourtext = durh;
+			hourtype = (durh == 1) ? " hour" : " hours"
+		}//if durh
+		
+		//we want to display durmin2 rather than durmin, as durmin2 will always be < 60
+		if (durmin2 > 0) {
+			puncttype += 2;
+			mintext = durmin2;
+			mintype = (durmin2 == 1) ? " minute" : " minutes"
+		}//if durmin2
+		
+		//account for cases where dursec is displayed and also where the score duration is 0
+		if (dursec > 0 || dur == 0) {
+			puncttype += 4;
+			sectext = dursec;
+			sectype = (dursec == 1) ? " second" : " seconds"
+		}//if dursec
+		
+		switch (puncttype) {
+			//determines how to write the list depending on score length
+			case 3: {hourpunct = " and "; break;}
+			
+			case 5: {hourpunct = " and "; break;}
+			
+			case 6: {minpunct = " and "; break;}
+			
+			case 7: {hourpunct = ", "; minpunct = ", and "; break;}
+			
+			default: {hourpunct = ""; minpunct = ""; break;}
+		}//switch
+		
+		ddtext.text = (titleformat + hourtext + hourtype + hourpunct + mintext + mintype + minpunct + sectext + sectype + abssec);
+		console.log(ddtext.text);
+		
+		//save format for scores >= 3600s
+		if (durmin >= 60) {
+			//sends results to user window and activates it
+			savetext1 = (durh + " h, " + durmin2 + " min, " + dursec + " s");
+			if (durmin2 >= 10) {
+				savetext2 = (dursec >= 10) ? (durh + ":" + durmin2 + ":" + dursec) : (durh + ":" + durmin2 + ":0" + dursec)
+			} else {
+				savetext2 = (dursec >= 10) ? (durh + ":0" + durmin2 + ":" + dursec) : (durh + ":0" + durmin2 + ":0" + dursec)
+			} //else
+		} else 
+		
+		//save format for scores < 60s 
+		if (durmin == 0) {            
+			savetext1 = (dursec + " s");
+			//to avoid an 8 second score to result in 0:8 (preferred: 0:08)
+			savetext2 = (dursec >= 10) ? ("0:" + dursec) : ("0:0" + dursec);
+		} else
+		
+		//save format for 60s =< scores < 3600s
+		{
+			savetext1 = (durmin + " min, " + dursec + " s");
+			savetext2 = (dursec >= 10) ? (durmin + ":" + dursec) : (durmin + ":0" + dursec);
+		}//else
+		
+		//these are the same regardless of score length
+		savetext3 = (dur + " s");
+		savetext4 = dur;
+		
+		durationDialog.open() //open window
+		
+	} //onRun
+	
+	//executed on button click or return key from text field
+	function saveToTag() {
+		//checks for save to score properties
+		if (saveprop.checked) {
+			var actTagName = tagname.placeholderText
+			//checks for alternate tag name
+			if (tagname.text != "") {
+				actTagName = tagname.text;
+			}
+			console.log("Writing '" + savetext  + "' to tag '" + actTagName + "'.");
+			score.setMetaTag(actTagName, savetext);   
+		} else {
+			//wanted if we dont save to score properties
+			console.log("Not saving to Score Properties.")
+		}
+		
+		console.log("Closing...")
+		durationDialog.close();
+	} //function
+	
+	//window shown to end user
+	Dialog {
+		id: durationDialog
+		title: qsTr("Score Duration");
+		
+		standardButtons: StandardButton.Ok
+		onAccepted: {
+			saveToTag()
+		} //onAccepted
+		
+		Label {id: ddtext} //Label type for improved automatic styling in MU3
+		
+		GridLayout {
+			anchors.top: ddtext.bottom
+			anchors.left: mainLayout.right
+			anchors.margins: 10
+			anchors.leftMargin: 20
+			columns: 2
+				
+			Label {
+				id: previewLabel
+				text: "Preview:"
+				visible: saveprop.checked
+			}//Label
+			
+			Row {
+				spacing: 0
+				//containing TextArea in a row allows for specific size settings
+				TextArea {
+					id: previewBox
+					height: 30
+					width: contentWidth + 10
+					readOnly: true
+					text: savetext
+					wrapMode: TextEdit.NoWrap
+					horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
+					verticalScrollBarPolicy: Qt.ScrollBarAlwaysOff
+					visible: saveprop.checked
+				}//TextArea
+			}//Row
+			
+			Label {
+				id: tagnamelabel;
+				visible: saveprop.checked;
+				text: qsTr("Tag Name:")
+			} //Label
+			
+			TextField {
+				id: tagname
+				visible: saveprop.checked;
+				placeholderText: qsTr("duration")
+				Keys.onReturnPressed: {
+					saveToTag()
+				} //onReturnPressed
+			} //Textfield 
+			
+		}//ColumnLayout
+		
+		ColumnLayout {
+			id: mainLayout
+			anchors.margins: 10
+			anchors.top: ddtext.bottom
+			anchors.topMargin: 10
+			
+			CheckBox {
+				id: saveprop
+				text: qsTr("Save to Score Properties")
+			} //CheckBox
+			
+			RowLayout {
+				spacing: 20;
+				 
+				CheckBox {
+					id: units;
+					visible: saveprop.checked;
+					checked: false;
+					text: qsTr("Save Units");
+				} //CheckBox
+						
+				CheckBox {
+					id: seconds;
+					visible: saveprop.checked;
+					checked: false;
+					text: qsTr("Seconds only");
+				} //CheckBox
+				
+			} //RowLayout
+			
+		}//ColumnLayout
+		
 	} //Dialog
-
-Settings {
-      id: settings
-      category: "ScoreDurationPlugin"
-      property alias saveprop:    saveprop.checked
-      property alias units:       units.checked
-      property alias seconds:     seconds.checked
-      property alias tagname:     tagname.text
-      } //settings
-
-} //Musescore
+	
+	Settings {
+		id: settings
+		category: "ScoreDurationPlugin"
+		property alias saveprop:	saveprop.checked
+		property alias units:		units.checked
+		property alias seconds:		seconds.checked
+		property alias tagname:		tagname.text
+	} //Settings
+	
+} //MuseScore
