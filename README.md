@@ -24,6 +24,6 @@ A simple MuseScore plugin that tells you how long your score is.
 - Initial functional release
 
 ## Installation
-Unzip the [latest release](https://github.com/XiaoMigros/msc-score-duration/releases/tag/v1.2.0) and move the folder 'Score Duration' to MuseScore's plugins folder.
+Unzip the [latest release](https://github.com/XiaoMigros/msc-score-duration/releases/latest) and move the folder 'Score Duration' to MuseScore's plugins folder.
 
 For more help installing this plugin, visit [this page](https://musescore.org/en/handbook/3/plugins#installation).
