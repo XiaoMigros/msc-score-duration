@@ -1,4 +1,4 @@
-# [Score Duration for MuseScore 3 & 4 (v1.2.0)](https://musescore.org/en/project/score-duration)
+# [Score Duration for MuseScore 3 & 4 (v1.2.1)](https://musescore.org/en/project/score-duration)
 A simple MuseScore plugin that tells you how long your score is.
 
 ## Features:
