@@ -1,4 +1,5 @@
 //Score Duration
+//Copyright (C) 2023 XiaoMigros
 
 import QtQuick 2.0
 import QtQuick.Dialogs 1.2
@@ -8,6 +9,7 @@ import Qt.labs.settings 1.0
 import MuseScore 3.0
 
 // Changelog:
+// 1.2.1: visual improvements, bug fixes
 // 1.2.0: MuseScore 4 compatibility, tag preview, massive code simplifications
 // 1.1.2: Fixed a bug which meant settings only saved on 60s =< scores < 3600s
 //        Fixed a bug where a score of eg. 61 seconds could be saved as 1:1 (preferred: 1:01)
@@ -21,39 +23,40 @@ import MuseScore 3.0
 MuseScore {
     menuPath: qsTr("Plugins.Score Duration")
     description: qsTr("Outputs a score's duration in hours, minutes, and seconds.")
-    version: "1.2.0"
+    version: "1.2.1"
     requiresScore: true
     id: sd
 	
     Component.onCompleted : {
         if (mscoreMajorVersion >= 4) {
-            sd.title = qsTr("Score Duration") ;
-            sd.thumbnailName = "logo.png";
-            sd.categoryCode = "analysis";
+            sd.title = qsTr("Score Duration")
+            sd.thumbnailName = "logo.png"
+            sd.categoryCode = "analysis"
         } //if
     } //oncompleted
     
 	//different time formats
-    property var savetext1;
-    property var savetext2;
-    property var savetext3;
-    property var savetext4;
+    property var savetext1: ""
+    property var savetext2: ""
+    property var savetext3: ""
+    property var savetext4: ""
 	
 	property var savetext: units.checked ? (seconds.checked ? savetext3 : savetext1) : (seconds.checked ? savetext4 : savetext2)
+	
+	property var score:	curScore
+	property var dur:	score.duration
       
 	onRun: {
 		console.log("Running Plugin: Score Duration")
-		var score	= curScore;
-		var dur		= score.duration;
 		
 		//time calculation
-		var dursec	= dur % 60;
-		var durmin	= (dur - dursec) / 60;
-		var durmin2	=  durmin % 60;
-		var durh	= (durmin-durmin2) / 60;
+		var dursec	= dur % 60
+		var durmin	= (dur - dursec) / 60
+		var durmin2	=  durmin % 60
+		var durh	= (durmin-durmin2) / 60
 		
 		//text format for window
-		var titleformat	= (score.title == "") ? ("Your score is ") : ("Your score '" + score.title + "' is ");
+		var titleformat	= (score.title == "") ? ("Your score is ") : ("Your score '" + score.title + "' is ")
 		var hourtext	= ""
 		var hourtype	= ""
 		var hourpunct	= ""
@@ -62,7 +65,7 @@ MuseScore {
 		var minpunct	= ""
 		var sectext		= ""
 		var sectype		= ""
-		var abssec		= (durmin == 0) ? (" long.") : (" long (" + dur + " seconds).");
+		var abssec		= (durmin == 0) ? (" long.") : (" long (" + dur + " seconds).")
 		var puncttype	= 0;
 		
 		if (durh > 0) {
@@ -95,7 +98,7 @@ MuseScore {
 			
 			case 7: {hourpunct = ", "; minpunct = ", and "; break;}
 			
-			default: {hourpunct = ""; minpunct = ""; break;}
+			default: {break;}
 		}//switch
 		
 		ddtext.text = (titleformat + hourtext + hourtype + hourpunct + mintext + mintype + minpunct + sectext + sectype + abssec);
@@ -103,13 +106,9 @@ MuseScore {
 		
 		//save format for scores >= 3600s
 		if (durmin >= 60) {
-			//sends results to user window and activates it
 			savetext1 = (durh + " h, " + durmin2 + " min, " + dursec + " s");
-			if (durmin2 >= 10) {
-				savetext2 = (dursec >= 10) ? (durh + ":" + durmin2 + ":" + dursec) : (durh + ":" + durmin2 + ":0" + dursec)
-			} else {
-				savetext2 = (dursec >= 10) ? (durh + ":0" + durmin2 + ":" + dursec) : (durh + ":0" + durmin2 + ":0" + dursec)
-			} //else
+			savetext2 = (durmin2 >= 10) ? ((dursec >= 10) ? (durh + ":" + durmin2 + ":" + dursec) : (durh + ":" + durmin2 + ":0" + dursec))
+						: ((dursec >= 10) ? (durh + ":0" + durmin2 + ":" + dursec) : (durh + ":0" + durmin2 + ":0" + dursec))
 		} else 
 		
 		//save format for scores < 60s 
@@ -153,17 +152,15 @@ MuseScore {
 		durationDialog.close();
 	} //function
 	
-	//window shown to end user
+	//Window shown to end user
 	Dialog {
 		id: durationDialog
 		title: qsTr("Score Duration");
 		
 		standardButtons: StandardButton.Ok
-		onAccepted: {
-			saveToTag()
-		} //onAccepted
+		onAccepted: {saveToTag()}
 		
-		Label {id: ddtext} //Label type for improved automatic styling in MU3
+		Label {id: ddtext} //Label type for improved automatic styling
 		
 		GridLayout {
 			anchors.top: ddtext.bottom
@@ -171,42 +168,22 @@ MuseScore {
 			anchors.margins: 10
 			anchors.leftMargin: 20
 			columns: 2
+			visible: saveprop.checked
 				
-			Label {
-				id: previewLabel
-				text: "Preview:"
-				visible: saveprop.checked
-			}//Label
+			Label {text: qsTr("Preview:")}//Label
 			
-			Row {
-				spacing: 0
-				//containing TextArea in a row allows for specific size settings
-				TextArea {
-					id: previewBox
-					height: 30
-					width: contentWidth + 10
-					readOnly: true
-					text: savetext
-					wrapMode: TextEdit.NoWrap
-					horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
-					verticalScrollBarPolicy: Qt.ScrollBarAlwaysOff
-					visible: saveprop.checked
-				}//TextArea
-			}//Row
+			TextField {
+				enabled: false
+				opacity: 1.0//gets overridden by MU4 styling
+				text: savetext
+			}//TextField
 			
-			Label {
-				id: tagnamelabel;
-				visible: saveprop.checked;
-				text: qsTr("Tag Name:")
-			} //Label
+			Label {text: qsTr("Tag Name:")} //Label
 			
 			TextField {
 				id: tagname
-				visible: saveprop.checked;
 				placeholderText: qsTr("duration")
-				Keys.onReturnPressed: {
-					saveToTag()
-				} //onReturnPressed
+				Keys.onReturnPressed: {saveToTag()}
 			} //Textfield 
 			
 		}//ColumnLayout
@@ -224,17 +201,16 @@ MuseScore {
 			
 			RowLayout {
 				spacing: 20;
+				visible: saveprop.checked;
 				 
 				CheckBox {
 					id: units;
-					visible: saveprop.checked;
 					checked: false;
 					text: qsTr("Save Units");
 				} //CheckBox
 						
 				CheckBox {
 					id: seconds;
-					visible: saveprop.checked;
 					checked: false;
 					text: qsTr("Seconds only");
 				} //CheckBox
