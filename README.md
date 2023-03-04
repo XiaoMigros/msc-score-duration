@@ -6,6 +6,8 @@ A simple MuseScore plugin that tells you how long your score is.
  - Save the values to Score Properties, with a variety of formats to choose from
 
 ## Changelog;
+### 1.2.1
+- Visual improvements & bug fixes
 ### 1.2.0
 - MuseScore 4 compatibility
 - Tag preview: The plugin shows how the Score Properties value will look
